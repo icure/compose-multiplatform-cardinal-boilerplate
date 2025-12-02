@@ -6,6 +6,7 @@ import com.icure.cardinal.sdk.CardinalSdk
 import com.icure.cardinal.sdk.filters.PatientFilters
 import com.icure.cardinal.sdk.model.DecryptedPatient
 import com.icure.kryptom.crypto.defaultCryptoService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,17 +25,15 @@ class WelcomeViewModel(private val sdk: CardinalSdk) : ViewModel() {
     val busy: StateFlow<Boolean> = _busy.asStateFlow()
 
     fun processIntent(intent: WelcomeIntent) {
-        viewModelScope.launch {
-            when (intent) {
-                is WelcomeIntent.Demo.CreatePatients -> handleCreatePatients(intent.count)
-                WelcomeIntent.Demo.GetPatients -> handleGetPatients()
-            }
+        when (intent) {
+            is WelcomeIntent.Demo.CreatePatients -> handleCreatePatients(intent.count)
+            WelcomeIntent.Demo.GetPatients -> handleGetPatients()
         }
     }
 
     private fun doAsyncWithBusy(action: suspend () -> Unit) {
         if (_busy.compareAndSet(expect = false, update = true)) {
-            viewModelScope.launch {
+            viewModelScope.launch(Dispatchers.Default) {
                 try {
                     action()
                 } finally {
