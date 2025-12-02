@@ -5,7 +5,7 @@ and example usage of the SDK.
 
 ## Configuration
 
-Before running the application, make sure to configure the following settings:
+Before running the application, make sure to configure the following settings in the gradle.properties file:
 
 - EXTERNAL_SERVICES_SPEC_ID id for the configuration of email/sms/captcha services for your environment, obtained from the cockpit. 
 - PROCESS_ID: id of the process for login/registration created from the cockpit.
