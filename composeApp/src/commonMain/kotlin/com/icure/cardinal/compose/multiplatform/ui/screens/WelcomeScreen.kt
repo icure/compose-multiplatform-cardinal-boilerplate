@@ -71,7 +71,7 @@ fun WelcomeScreen(
             )
 
             Text(
-                text = "Try some demo actions below:",
+                text = "Try some demo actions below.\nCheck the logcat/console for the output!",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 48.dp)

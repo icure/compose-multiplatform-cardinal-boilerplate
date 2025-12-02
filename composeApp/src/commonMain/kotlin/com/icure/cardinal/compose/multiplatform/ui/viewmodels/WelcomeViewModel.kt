@@ -61,7 +61,9 @@ class WelcomeViewModel(private val sdk: CardinalSdk) : ViewModel() {
     }
 
     private fun handleGetPatients() = doAsyncWithBusy {
-        val patients = sdk.patient.filterPatientsBy(PatientFilters.allPatientsForSelf())
+        // For this boilerplate we didn't setup proper key management across devices, use the "tryAndRecover"
+        // flavour to make sure that data created from other devices is not going to cause errors during decryption.
+        val patients = sdk.patient.tryAndRecover.filterPatientsBy(PatientFilters.allPatientsForSelf())
         while (patients.hasNext()) {
             println("Fetched patients page ${patients.next(10)}")
         }
