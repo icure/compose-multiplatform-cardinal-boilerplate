@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>APPLICATION_ID</key>
+	<string>$(APPLICATION_ID)</string>
+	<key>BUNDLE_ID</key>
+	<string>$(BUNDLE_ID)</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
+	<key>EXTERNAL_SERVICES_SPEC_ID</key>
+	<string>$(EXTERNAL_SERVICES_SPEC_ID)</string>
+	<key>PROCESS_ID</key>
+	<string>$(PROCESS_ID)</string>
+</dict>
+</plist>
