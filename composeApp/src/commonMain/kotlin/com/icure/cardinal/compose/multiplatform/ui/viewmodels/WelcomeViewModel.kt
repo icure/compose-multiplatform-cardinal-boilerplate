@@ -2,6 +2,7 @@ package com.icure.cardinal.compose.multiplatform.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.icure.cardinal.sdk.CardinalSdk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +25,7 @@ sealed interface WelcomeIntent {
     data object Logout : WelcomeIntent
 }
 
-class WelcomeViewModel : ViewModel() {
+class WelcomeViewModel(sdk: CardinalSdk) : ViewModel() {
     private val _state = MutableStateFlow(WelcomeState())
     val state: StateFlow<WelcomeState> = _state.asStateFlow()
 

@@ -13,11 +13,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 sealed interface AppState {
     data object Unauthenticated : AppState
     data object PendingValidation : AppState
-    data class Authenticated(val sdk: CardinalSdk) : AppState
+    data class Authenticated(val sdk: CardinalSdk, val sdkId: String) : AppState
 }
 
 data class LoginState(
@@ -84,9 +86,13 @@ class AppViewModel : ViewModel() {
         _authState.update { AppState.PendingValidation }
     }
 
+    @OptIn(ExperimentalUuidApi::class)
     private fun handleCompleteValidation(sdk: CardinalSdk) {
         _sdk = sdk
-        _authState.update { AppState.Authenticated(sdk) }
+
+        viewModelScope.launch(Dispatchers.Default) {
+            _authState.update { AppState.Authenticated(sdk, Uuid.random().toString()) }
+        }
     }
 
     private fun handleLogout() {

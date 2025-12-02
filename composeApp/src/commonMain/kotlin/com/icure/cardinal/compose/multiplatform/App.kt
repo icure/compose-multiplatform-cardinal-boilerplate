@@ -9,7 +9,6 @@ import com.icure.cardinal.compose.multiplatform.navigation.AuthNavGraph
 import com.icure.cardinal.compose.multiplatform.ui.screens.WelcomeScreen
 import com.icure.cardinal.compose.multiplatform.ui.viewmodels.AppViewModel
 import com.icure.cardinal.compose.multiplatform.ui.viewmodels.AppState
-import com.icure.cardinal.compose.multiplatform.ui.viewmodels.WelcomeViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -19,13 +18,15 @@ fun App() {
         val appViewModel: AppViewModel = viewModel { AppViewModel() }
         val appState by appViewModel.authState.collectAsState()
 
-        when (appState) {
+        when (val state = appState) {
             is AppState.Unauthenticated,
             is AppState.PendingValidation -> {
                 AuthNavGraph(appViewModel = appViewModel)
             }
             is AppState.Authenticated -> {
                 WelcomeScreen(
+                    sdk = state.sdk,
+                    sdkId = state.sdkId,
                     appViewModel = appViewModel,
                 )
             }

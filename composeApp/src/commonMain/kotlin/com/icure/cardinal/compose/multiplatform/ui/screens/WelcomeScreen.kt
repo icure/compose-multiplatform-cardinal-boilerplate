@@ -18,11 +18,14 @@ import com.icure.cardinal.compose.multiplatform.ui.viewmodels.AppIntent
 import com.icure.cardinal.compose.multiplatform.ui.viewmodels.AppViewModel
 import com.icure.cardinal.compose.multiplatform.ui.viewmodels.WelcomeIntent
 import com.icure.cardinal.compose.multiplatform.ui.viewmodels.WelcomeViewModel
+import com.icure.cardinal.sdk.CardinalSdk
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WelcomeScreen(
-    viewModel: WelcomeViewModel = viewModel { WelcomeViewModel() },
+    sdkId: String,
+    sdk: CardinalSdk,
+    viewModel: WelcomeViewModel = viewModel(key = sdkId) { WelcomeViewModel(sdk) },
     appViewModel: AppViewModel
 ) {
     val state by viewModel.state.collectAsState()
