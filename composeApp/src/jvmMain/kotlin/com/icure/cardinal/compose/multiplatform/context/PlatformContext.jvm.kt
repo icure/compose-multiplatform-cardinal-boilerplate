@@ -1,9 +1,7 @@
 package com.icure.cardinal.compose.multiplatform.context
 
 import com.icure.cardinal.sdk.storage.StorageFacade
-import com.icure.cardinal.sdk.storage.impl.FileStorageFacade
 import com.icure.cardinal.sdk.storage.impl.JavaFileStorageFacade
-import com.icure.cardinal.sdk.storage.impl.VolatileStorageFacade
 
 actual object PlatformContext {
     actual val applicationId: String? = System.getProperty("APPLICATION_ID").takeIf { it.isNotEmpty() }

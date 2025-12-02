@@ -161,6 +161,14 @@ dependencies {
     debugImplementation(compose.uiTooling)
 }
 
+// Configure JVM arguments for all JavaExec tasks (including jvmRun used by IntelliJ)
+tasks.withType<JavaExec>().configureEach {
+    systemProperty("EXTERNAL_SERVICES_SPEC_ID", EXTERNAL_SERVICES_SPEC_ID)
+    systemProperty("APPLICATION_ID", APPLICATION_ID)
+    systemProperty("PROCESS_ID", PROCESS_ID)
+    systemProperty("KEY_STORAGE_PATH", "${project.rootDir.absolutePath}/keyStorage")
+}
+
 compose.desktop {
     application {
         mainClass = "com.icure.cardinal.compose.multiplatform.MainKt"

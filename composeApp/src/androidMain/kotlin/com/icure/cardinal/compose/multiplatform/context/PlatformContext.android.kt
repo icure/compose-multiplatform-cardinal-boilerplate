@@ -10,10 +10,9 @@ import com.icure.cardinal.sdk.storage.StorageFacade
 import com.icure.cardinal.sdk.storage.impl.DataStorePreferenceStorage
 
 private val Context.cardinalDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = buildString {
-        append(PlatformContext.applicationId)
-        append(".cardinal")
-    }
+    name = PlatformContext.applicationId?.let {
+        "$it.cardinal"
+    } ?: "cardinal"
 )
 
 actual object PlatformContext {

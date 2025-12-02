@@ -25,10 +25,7 @@ actual object PlatformContext {
 
     actual val cardinalStorageFacade: StorageFacade by lazy {
         UserDefaultStorageFacade(
-            buildString {
-                append(applicationId)
-                append(".cardinal")
-            }
+            applicationId?.let { "$it.cardinal" } ?: "cardinal"
         )
     }
 

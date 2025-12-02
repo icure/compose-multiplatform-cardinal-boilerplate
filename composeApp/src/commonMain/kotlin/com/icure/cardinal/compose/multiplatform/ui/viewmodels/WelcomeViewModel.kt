@@ -3,66 +3,68 @@ package com.icure.cardinal.compose.multiplatform.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.icure.cardinal.sdk.CardinalSdk
+import com.icure.cardinal.sdk.filters.PatientFilters
+import com.icure.cardinal.sdk.model.DecryptedPatient
+import com.icure.kryptom.crypto.defaultCryptoService
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-data class WelcomeState(
-    val userName: String = "",
-    val availableActions: List<String> = listOf(
-        "Action 1",
-        "Action 2",
-        "Action 3",
-        "Action 4"
-    )
-)
 
 sealed interface WelcomeIntent {
-    data class ActionClicked(val action: String) : WelcomeIntent
-    data class SetUserName(val userName: String) : WelcomeIntent
-    data object Logout : WelcomeIntent
+    interface Demo {
+        data class CreatePatients(val count: Int) : WelcomeIntent
+        data object GetPatients : WelcomeIntent
+    }
 }
 
-class WelcomeViewModel(sdk: CardinalSdk) : ViewModel() {
-    private val _state = MutableStateFlow(WelcomeState())
-    val state: StateFlow<WelcomeState> = _state.asStateFlow()
+class WelcomeViewModel(private val sdk: CardinalSdk) : ViewModel() {
+    private val _busy = MutableStateFlow(false)
+    val busy: StateFlow<Boolean> = _busy.asStateFlow()
 
     fun processIntent(intent: WelcomeIntent) {
         viewModelScope.launch {
             when (intent) {
-                is WelcomeIntent.ActionClicked -> handleActionClicked(intent.action)
-                is WelcomeIntent.SetUserName -> handleSetUserName(intent.userName)
-                is WelcomeIntent.Logout -> handleLogout()
+                is WelcomeIntent.Demo.CreatePatients -> handleCreatePatients(intent.count)
+                WelcomeIntent.Demo.GetPatients -> handleGetPatients()
             }
         }
     }
 
-    private fun handleActionClicked(action: String) {
-        // TODO: Implement action handling based on the action string
-        when (action) {
-            "Action 1" -> {
-                // Handle action 1
-            }
-            "Action 2" -> {
-                // Handle action 2
-            }
-            "Action 3" -> {
-                // Handle action 3
-            }
-            "Action 4" -> {
-                // Handle action 4
+    private fun doAsyncWithBusy(action: suspend () -> Unit) {
+        if (_busy.compareAndSet(expect = false, update = true)) {
+            viewModelScope.launch {
+                try {
+                    action()
+                } finally {
+                    _busy.value = false
+                }
             }
         }
     }
 
-    private fun handleSetUserName(userName: String) {
-        _state.update { it.copy(userName = userName) }
+    private fun handleCreatePatients(count: Int) = doAsyncWithBusy {
+        val demoId = defaultCryptoService.strongRandom.randomUUID()
+        val created = sdk.patient.createPatients(
+            List(count) {
+                sdk.patient.withEncryptionMetadata(
+                    base = DecryptedPatient(
+                        id = defaultCryptoService.strongRandom.randomUUID(),
+                        firstName = "Demo $demoId",
+                        lastName = "Patient $it"
+                    )
+                )
+            }
+        )
+        println("Created patients $created")
     }
 
-    private fun handleLogout() {
-        // TODO: Implement logout logic (clear user session, navigate to login, etc.)
+    private fun handleGetPatients() = doAsyncWithBusy {
+        val patients = sdk.patient.filterPatientsBy(PatientFilters.allPatientsForSelf())
+        while (patients.hasNext()) {
+            println("Fetched patients page ${patients.next(10)}")
+        }
     }
 }
 

@@ -28,7 +28,7 @@ fun WelcomeScreen(
     viewModel: WelcomeViewModel = viewModel(key = sdkId) { WelcomeViewModel(sdk) },
     appViewModel: AppViewModel
 ) {
-    val state by viewModel.state.collectAsState()
+    val busy by viewModel.busy.collectAsState()
     var showMenu by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -65,38 +65,35 @@ fun WelcomeScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Welcome!",
+                text = "You have logged in!",
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            if (state.userName.isNotEmpty()) {
-                Text(
-                    text = state.userName,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-            }
-
             Text(
-                text = "Choose an action to get started",
+                text = "Try some demo actions below:",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 48.dp)
             )
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                state.availableActions.forEach { action ->
-                    ActionButton(
-                        text = action,
-                        onClick = { viewModel.processIntent(WelcomeIntent.ActionClicked(action)) }
-                    )
-                }
-            }
+            ActionButton(
+                text = "Create 1 demo patient",
+                busy = busy,
+                onClick = { viewModel.processIntent(WelcomeIntent.Demo.CreatePatients(1)) }
+            )
+
+            ActionButton(
+                text = "Create 10 demo patient",
+                busy = busy,
+                onClick = { viewModel.processIntent(WelcomeIntent.Demo.CreatePatients(10)) }
+            )
+
+            ActionButton(
+                text = "Get all demo patients",
+                busy = busy,
+                onClick = { viewModel.processIntent(WelcomeIntent.Demo.GetPatients) }
+            )
         }
     }
 }
@@ -104,6 +101,7 @@ fun WelcomeScreen(
 @Composable
 private fun ActionButton(
     text: String,
+    busy: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -112,6 +110,7 @@ private fun ActionButton(
         modifier = modifier
             .fillMaxWidth()
             .height(56.dp),
+        enabled = !busy,
         elevation = ButtonDefaults.elevatedButtonElevation(
             defaultElevation = 2.dp,
             pressedElevation = 4.dp
