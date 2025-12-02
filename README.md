@@ -1,5 +1,20 @@
 This is a Kotlin Multiplatform project targeting Android, iOS, Desktop (JVM).
 
+## Configuration
+
+Build configuration values are defined in `gradle.properties`:
+- `EXTERNAL_SERVICES_SPEC_ID` - External services specification ID
+- `APPLICATION_ID` - Application identifier
+- `BUNDLE_ID` - Bundle identifier
+- `PROCESS_ID` - Process identifier
+
+These values are automatically:
+- Used in Android builds via `buildConfigField`
+- Passed to Desktop (JVM) builds as system properties
+- Generated into `iosApp/Configuration/BuildConfig.xcconfig` for iOS builds (run `./gradlew generateIosConfig` or it runs automatically before Kotlin compilation)
+
+## Project Structure
+
 * [/composeApp](./composeApp/src) is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
   - [commonMain](./composeApp/src/commonMain/kotlin) is for code that’s common for all targets.

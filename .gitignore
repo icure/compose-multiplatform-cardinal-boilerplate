@@ -5,6 +5,7 @@
 xcuserdata
 !src/**/build/
 local.properties
+iosApp/Configuration/BuildConfig.xcconfig
 .idea
 .DS_Store
 captures
@@ -17,3 +18,4 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 node_modules/
+keyStorage

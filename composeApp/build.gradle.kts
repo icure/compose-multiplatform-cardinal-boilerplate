@@ -1,5 +1,4 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
-import org.jetbrains.compose.internal.utils.getLocalProperty
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -64,10 +63,55 @@ kotlin {
     }
 }
 
-val externalServicesSpecId: String = getLocalProperty("EXTERNAL_SERVICES_SPEC_ID") as String
-val applicationId: String = getLocalProperty("APPLICATION_ID") as String
-val bundleId: String = getLocalProperty("BUNDLE_ID") as String
-val processId: String = getLocalProperty("PROCESS_ID") as String
+val EXTERNAL_SERVICES_SPEC_ID: String by project
+val APPLICATION_ID: String by project
+val PRODUCT_BUNDLE_IDENTIFIER: String by project
+val PROCESS_ID: String by project
+
+// Task to generate xcconfig file for iOS with build configuration values
+abstract class GenerateIosConfigTask : DefaultTask() {
+    @get:Input
+    abstract val externalServicesSpecId: Property<String>
+
+    @get:Input
+    abstract val applicationId: Property<String>
+
+    @get:Input
+    abstract val productBundleId: Property<String>
+
+    @get:Input
+    abstract val processId: Property<String>
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
+
+    @TaskAction
+    fun generate() {
+        val configFile = outputFile.get().asFile
+        configFile.parentFile.mkdirs()
+        configFile.writeText("""
+            // Auto-generated from gradle.properties - DO NOT EDIT MANUALLY
+            EXTERNAL_SERVICES_SPEC_ID=${externalServicesSpecId.get()}
+            APPLICATION_ID=${applicationId.get()}
+            PRODUCT_BUNDLE_IDENTIFIER=${productBundleId.get()}
+            PROCESS_ID=${processId.get()}
+        """.trimIndent())
+        println("Generated iOS config at: ${configFile.absolutePath}")
+    }
+}
+
+tasks.register<GenerateIosConfigTask>("generateIosConfig") {
+    externalServicesSpecId.set(EXTERNAL_SERVICES_SPEC_ID)
+    applicationId.set(APPLICATION_ID)
+    productBundleId.set(PRODUCT_BUNDLE_IDENTIFIER)
+    processId.set(PROCESS_ID)
+    outputFile.set(project.rootProject.file("iosApp/Configuration/BuildConfig.xcconfig"))
+}
+
+// Run before iOS builds
+tasks.matching { it.name.startsWith("compile") && it.name.contains("Kotlin") }.configureEach {
+    dependsOn("generateIosConfig")
+}
 
 android {
     namespace = "com.icure.cardinal.compose.multiplatform"
@@ -104,11 +148,11 @@ android {
         create("patient-dev") {
             isDefault = true
             dimension = "version"
-            applicationId = bundleId
+            applicationId = PRODUCT_BUNDLE_IDENTIFIER
 
-            buildConfigField("String", "externalServicesSpecId", """"$externalServicesSpecId"""")
-            buildConfigField("String", "applicationId", """"$applicationId"""")
-            buildConfigField("String", "processId", """"$processId"""")
+            buildConfigField("String", "externalServicesSpecId", """"$EXTERNAL_SERVICES_SPEC_ID"""")
+            buildConfigField("String", "applicationId", """"$APPLICATION_ID"""")
+            buildConfigField("String", "processId", """"$PROCESS_ID"""")
         }
     }
 }
@@ -120,6 +164,13 @@ dependencies {
 compose.desktop {
     application {
         mainClass = "com.icure.cardinal.compose.multiplatform.MainKt"
+
+        jvmArgs(
+            "-DEXTERNAL_SERVICES_SPEC_ID=${EXTERNAL_SERVICES_SPEC_ID}",
+            "-DAPPLICATION_ID=${APPLICATION_ID}",
+            "-DPROCESS_ID=${PROCESS_ID}",
+            "-DKEY_STORAGE_PATH=${project.rootDir.absolutePath}/keyStorage"
+        )
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)

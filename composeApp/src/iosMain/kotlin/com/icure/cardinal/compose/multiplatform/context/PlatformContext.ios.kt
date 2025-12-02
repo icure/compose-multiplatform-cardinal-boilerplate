@@ -4,10 +4,10 @@ import com.icure.cardinal.sdk.storage.StorageFacade
 import com.icure.cardinal.sdk.storage.impl.UserDefaultStorageFacade
 
 actual object PlatformContext {
-    actual val applicationId: String
+    actual val applicationId: String?
         get() = requireNotNull(_applicationId) {
             "applicationId is not initialized. Call setupValues() before using this property."
-        }
+        }.takeIf { it.isNotEmpty() }
 
     actual val processId: String
         get() = requireNotNull(_processId) {

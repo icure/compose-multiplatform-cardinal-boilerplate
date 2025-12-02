@@ -20,8 +20,8 @@ actual object PlatformContext {
 
     private var _applicationContext: Application? = null
 
-    actual val applicationId: String
-        get() = BuildConfig.applicationId
+    actual val applicationId: String?
+        get() = BuildConfig.applicationId.takeIf { it.isNotEmpty() }
 
     actual val processId: String
         get() = BuildConfig.processId
